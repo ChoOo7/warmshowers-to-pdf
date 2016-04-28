@@ -30,7 +30,7 @@ class Warmshowers
       'debug'=>$this->debug
     ));
     $responseText = $res->getBody();
-    preg_match('!<input type="hidden" name="form_build_id" value="([^"]*)" />!ism', $responseText, $matches);
+    preg_match('!<input type="hidden" name="form_build_id" value="([^"]*)" />\s+<input type="hidden" name="form_id" value="user_login" />!ism', $responseText, $matches);
     return $matches[1];
   }
 
