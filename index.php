@@ -17,7 +17,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
     die();
   }
 
-  $projectName = str_replace('.gpx', '', basename($fileName)).'-'.date('d/m/Y-H-i-s');
+  $projectName = str_replace('.gpx', '', basename($fileName)).'-'.date('d-m-Y-H-i-s');
 
   $gpxDest = __DIR__.'/generated/'.$projectName.'.gpx';
 
