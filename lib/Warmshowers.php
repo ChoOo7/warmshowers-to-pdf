@@ -26,7 +26,7 @@ class Warmshowers
   public function getFormBuildId()
   {
 
-    $res = $this->client->request('GET', self::SITE_BASE_URL.'/user', array(
+    $res = $this->client->request('POST', self::SITE_BASE_URL.'/user', array(
       'debug'=>$this->debug
     ));
     $responseText = $res->getBody();
