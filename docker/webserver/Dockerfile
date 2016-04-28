@@ -9,7 +9,7 @@ RUN ln -s  /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/
 
 
 RUN apt-get update
-RUN  apt-get install -y wget nano curl
+RUN  apt-get install -y wget nano curl openssl mcrypt
 
 ADD timezone.ini /usr/local/etc/php/conf.d/timezone.ini
 ADD memory.ini /usr/local/etc/php/conf.d/memory.ini

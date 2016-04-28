@@ -15,7 +15,7 @@ class Warmshowers
    */
   protected $client = null;
 
-  protected $debug = true;
+  protected $debug = false;
 
 
   public function __construct()
@@ -42,7 +42,6 @@ class Warmshowers
     ));
 
     $form_build_id = $this->getFormBuildId();
-    sleep(1);
     $postData = array(
       'name'=>$username,
       'pass'=>$password,
@@ -50,13 +49,11 @@ class Warmshowers
       'form_id'=>'user_login',
       'op'=>'Se connecter'
     );
-    var_dump($postData);
 
     $res = $this->client->request('POST', self::SITE_BASE_URL.'user', array(
       'form_params'=> $postData,
       'debug'=>$this->debug
     ));
-    sleep(1);
   }
 
 
@@ -102,7 +99,7 @@ class Warmshowers
 
     $cache = $this->getCache();
     $cacheKey = $minLat.'-'.$maxLat.'-'.$minLon.'-'.$maxLon.'-'.$centerLat.'-'.$centerLon.'-'.$limit;
-    if(false && array_key_exists($cacheKey, $cache))
+    if(array_key_exists($cacheKey, $cache))
     {
       return $cache[$cacheKey];
     }
