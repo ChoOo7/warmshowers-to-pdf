@@ -1,0 +1,7 @@
+#!/bin/bash
+
+alias sf='php app/console'
+alias composer='php composer.phar'
+
+
+cd /var/www/phpmon
