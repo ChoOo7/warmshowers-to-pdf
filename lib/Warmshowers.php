@@ -15,7 +15,7 @@ class Warmshowers
    */
   protected $client = null;
 
-  protected $debug = false;
+  protected $debug = true;
 
 
   public function __construct()
