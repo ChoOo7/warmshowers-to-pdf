@@ -31,6 +31,7 @@ class Warmshowers
     ));
     $responseText = $res->getBody();
     preg_match('!<input type="hidden" name="form_build_id" value="([^"]*)" />\s+<input type="hidden" name="form_id" value="user_login" />!ism', $responseText, $matches);
+
     return $matches[1];
   }
 
@@ -38,7 +39,7 @@ class Warmshowers
   {
 
     $form_build_id = $this->getFormBuildId();
-
+    sleep(1);
     $postData = array(
       'name'=>$username,
       'pass'=>$password,
@@ -52,11 +53,7 @@ class Warmshowers
       'form_params'=> $postData,
       'debug'=>$this->debug
     ));
-    $setCookieLine = $res->getHeaderLine("Set-Cookie");
-    $tmp = explode(';', $setCookieLine);
-    $sessionInformation = $tmp[0];
-    $this->sessionInformation = $sessionInformation;
-    return $sessionInformation;
+    sleep(1);
   }
 
 
