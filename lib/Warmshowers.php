@@ -23,16 +23,30 @@ class Warmshowers
     $this->client = new GuzzleHttp\Client(array('cookies'=>true));
   }
 
+  public function getFormBuildId()
+  {
+
+    $res = $this->client->request('GET', self::SITE_BASE_URL.'/user', array(
+      'debug'=>$this->debug
+    ));
+    $responseText = $res->getBody();
+    preg_match('!<input type="hidden" name="form_build_id" value="([^"]+)" />!ism', $responseText, $matches);
+    return $matches[1];
+  }
+
   public function login($username, $password)
   {
+
+    $form_build_id = $this->getFormBuildId();
 
     $postData = array(
       'name'=>$username,
       'pass'=>$password,
-      'form_build_id'=>'form-ddkRmFttDjVcxihZ7akatCWSDvfEIfQw53rlQffbUBs',
+      'form_build_id'=>$form_build_id,
       'form_id'=>'user_login',
       'op'=>'Se connecter'
     );
+    var_dump($postData);
 
     $res = $this->client->request('POST', self::SITE_BASE_URL.'user', array(
       'form_params'=> $postData,
