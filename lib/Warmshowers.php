@@ -15,7 +15,7 @@ class Warmshowers
    */
   protected $client = null;
 
-  protected $debug = true;
+  protected $debug = false;
 
 
   public function __construct()
@@ -38,7 +38,6 @@ class Warmshowers
   {
 
     $form_build_id = $this->getFormBuildId();
-    var_dump($form_build_id);die();
 
     $postData = array(
       'name'=>$username,
