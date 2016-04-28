@@ -19,6 +19,7 @@ $fromKm=@$argv[5];
 $toKm=@$argv[6];
 
 $reverseOrder=@$argv[7] == "1";
+$serverName=@$argv[8];
 
 $includeImage = true;
 
@@ -182,3 +183,25 @@ echo "\nepub saved : ".$outputFilename."\n";
 
 echo "\nepub saved : ".$outputFilename."\n";
 echo "\nCan be converted to PDf using http://www.online-convert.com/\n";
+
+
+if($serverName) {
+  $httpBaseLink = "http://" . $serverName . "/generated/";
+  $httpLinkWithoutImages = $httpBaseLink . basename($outputFilenameWithoutImages);
+  $httpLinkWithImages = $httpBaseLink . basename($outputFilename);
+
+  $mailBody = 'Votre fichier WarmShowers est disponible';
+  $mailBody .= "\n".'Celui-ci est disponible temporairement en téléchargement à l\'adresse suviante : ';
+  $mailBody .= "\n"."Version sans image : ".$httpLinkWithoutImages;
+  $mailBody .= "\n"."Version avec image : ".$httpLinkWithImages;
+  $mailBody .= "\n";
+  $mailBody .= "\nPar Simon Minotto - https://github.com/ChoOo7/warmshowers-to-pdf";
+  $mailBody .= "\n";
+
+  echo "\n".$mailBody;
+
+  mail($username, 'Warmshowers generated files', $mailBody);
+
+  echo "\n";
+}
+
