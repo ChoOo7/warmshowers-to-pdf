@@ -147,7 +147,7 @@ class Warmshowers
   {
     $cache = $this->getCache();
     $cacheKey = 'user-'.$uid;
-    if(false && array_key_exists($cacheKey, $cache))
+    if(array_key_exists($cacheKey, $cache))
     {
       return $cache[$cacheKey];
     }

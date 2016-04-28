@@ -11,9 +11,18 @@ require_once(__DIR__.'/vendor/autoload.php');
 $username=$argv[1];
 $password=$argv[2];
 $gpxFilename=$argv[3];
+$outputFilename=@$argv[4];
+
+$fromKm=@$argv[5];
+$toKm=@$argv[6];
 
 
-$searchInSquareOfXMeters = 3000;
+if(empty($outputFilename))
+{
+  $outputFilename = $gpxFilename.'.epub';
+}
+
+$searchInSquareOfXMeters = 5000;
 $dx = $dy = $searchInSquareOfXMeters;
 
 $ws = new \ChoOo7\Warmshowers();
@@ -32,10 +41,28 @@ $selectedHosts = array();
 
 //$points = array_slice($points, 0, 5);
 
-foreach($points as $point)
+$start = $points[0];
+foreach($points as $pointIndex=>$point)
 {
   $lat0 = $point['lat'];
   $lon0 = $point['lon'];
+
+  if($fromKm)
+  {
+    if(Gpx::distance($start['lat'], $start['lon'], $point['lat'], $point['lon']) < ($fromKm))
+    {
+      echo "\nHors carte";
+      continue;
+    }
+  }
+
+  if($toKm)
+  {
+    if(Gpx::distance($start['lat'], $start['lon'], $point['lat'], $point['lon']) > ($toKm))
+    {
+      break;
+    }
+  }
 
 
   //$lat = $lat0 + (180/pi())*($dy/6378137);
@@ -44,16 +71,28 @@ foreach($points as $point)
   $minLat = $lat0 - (180/pi())*($dy/6378137);
   $maxLat = $lat0 + (180/pi())*($dy/6378137);
 
-  $minLon = $lon0 - (180/pi())*($dx/6378137)/cos($lat0);
-  $maxLon = $lon0 + (180/pi())*($dx/6378137)/cos($lat0);
+  $minLon = $lon0 + (180/pi())*($dx/6378137)/cos($lat0);
+  $maxLon = $lon0 - (180/pi())*($dx/6378137)/cos($lat0);
 
   $centerLat = $lat0;
   $centerLon = $lon0;
 
-  $limit = 100;
+  $limit = 50;
+/*
+  var_dump($centerLat.','.$centerLon);
+  var_dump($minLat.','.$minLon);
+  var_dump($maxLat.','.$maxLon);
+  */
 
   $hosts = $ws->getHostsByLocation($minLat, $maxLat, $minLon, $maxLon, $centerLat, $centerLon, $limit);
-  echo "\n".$centerLat.','.$centerLon.' : '.count($hosts)." hosts";
+  /*
+  foreach ($hosts as $host)
+  {
+    var_dump($host['uid']);
+  }
+  die();
+  */
+  echo "\n".($pointIndex+1).'/'.count($points)." - ".$centerLat.','.$centerLon.' : '.count($hosts)." hosts";
 
   foreach($hosts as $host)
   {
@@ -80,10 +119,12 @@ foreach($points as $point)
 
 $selectedHosts = array_slice($selectedHosts, 0, 100, true);
 
+$hostIndex = 0;
 foreach($selectedHosts as $uid=>$host)
 {
 
-  echo "\n"." Getting host information of ".$uid;
+  echo "\n".($hostIndex+1)."/".count($selectedHosts)." - Getting host information of ".$uid;
+  $hostIndex++;
 
   $additionalInformations = $ws->getHostInformations($uid);
   $host = array_merge($host, $additionalInformations);
@@ -126,7 +167,7 @@ $book->buildTOC();
 $lots = array_chunk($selectedHosts, 10);
 foreach($lots as $lotIndex=>$hosts)
 {
-  $chapterName = "Lot ".($lotIndex+1);
+  $chapterName = "Lot ".($lotIndex+1).'/'.count($lots);
 
   $content = "";
 
@@ -191,7 +232,7 @@ $book->addChapter(
 
 
 $book->finalize();
-$book->saveBook($gpxFilename.'.epub', '/');
+$book->saveBook($outputFilename, '/');
 
 
 var_dump(count($selectedHosts));
