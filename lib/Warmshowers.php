@@ -15,7 +15,7 @@ class Warmshowers
    */
   protected $client = null;
 
-  protected $debug = false;
+  protected $debug = true;
 
 
   public function __construct()
@@ -30,7 +30,7 @@ class Warmshowers
       'debug'=>$this->debug
     ));
     $responseText = $res->getBody();
-    preg_match('!<input type="hidden" name="form_build_id" value="([^"]+)" />!ism', $responseText, $matches);
+    preg_match('!<input type="hidden" name="form_build_id" value="([^"]*)" />!ism', $responseText, $matches);
     return $matches[1];
   }
 
