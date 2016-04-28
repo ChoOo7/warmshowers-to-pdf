@@ -10,7 +10,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
   $fromKm = $_REQUEST['fromKm'];
   $toKm = $_REQUEST['toKm'];
 
-  $fileName = $_FILES['userfile']['name'];
+  $fileName = $_FILES['gpxFile']['name'];
   if(strpos($fileName, '.php') !== false || strpos($fileName, '.gpx') === false)
   {
     echo "ERROR";
