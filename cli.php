@@ -2,10 +2,12 @@
 
 use ChoOo7\Warmshowers;
 use ChoOo7\Gpx;
+use ChoOo7\WarmEpub;
 use PHPePub\Core\EPub;
 
 require_once(__DIR__.'/lib/Warmshowers.php');
 require_once(__DIR__.'/lib/Gpx.php');
+require_once(__DIR__.'/lib/WarmEpub.php');
 require_once(__DIR__.'/vendor/autoload.php');
 
 $username=$argv[1];
@@ -16,10 +18,13 @@ $outputFilename=@$argv[4];
 $fromKm=@$argv[5];
 $toKm=@$argv[6];
 
+$reverseOrder=@$argv[7] == "1";
+
+$includeImage = true;
 
 if(empty($outputFilename))
 {
-  $outputFilename = $gpxFilename.'.epub';
+  $outputFilename = str_replace('.gpx', '', $gpxFilename).'.epub';
 }
 
 $searchInSquareOfXMeters = 5000;
@@ -76,8 +81,23 @@ foreach($points as $pointIndex=>$point)
   $minLat = $lat0 - (180/pi())*($dy/6378137);
   $maxLat = $lat0 + (180/pi())*($dy/6378137);
 
+  if($minLat > $maxLat)
+  {
+    $tmp = $minLat;
+    $minLat = $maxLat;
+    $maxLat = $tmp;
+  }
+
   $minLon = $lon0 + (180/pi())*($dx/6378137)/cos($lat0);
   $maxLon = $lon0 - (180/pi())*($dx/6378137)/cos($lat0);
+
+
+  if($minLon > $maxLon)
+  {
+    $tmp = $minLon;
+    $minLon = $maxLon;
+    $maxLon = $tmp;
+  }
 
   $centerLat = $lat0;
   $centerLon = $lon0;
@@ -124,6 +144,11 @@ foreach($points as $pointIndex=>$point)
 
 //$selectedHosts = array_slice($selectedHosts, 0, 100, true);
 
+if($reverseOrder)
+{
+  $selectedHosts = array_reverse($selectedHosts, true);
+}
+
 $hostIndex = 0;
 foreach($selectedHosts as $uid=>$host)
 {
@@ -139,111 +164,21 @@ foreach($selectedHosts as $uid=>$host)
 
 echo "\nGenerating Epub";
 
-$content_start =
-  "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-  . "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\n"
-  . "    \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n"
-  . "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n"
-  . "<head>"
-  . "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n"
-  . "<link rel=\"stylesheet\" type=\"text/css\" href=\"styles.css\" />\n"
-  . "<title>".basename($gpxFilename)."</title>\n"
-  . "</head>\n"
-  . "<body>\n";
-$content_end = "</body>\n</html>\n";
+$epubName = basename($gpxFilename);
+$epubName = str_replace('.gpx', '', $epubName);
 
-$book = new EPub();
-$book->setTitle(basename($gpxFilename));
-$authorname = "Simon Minotto";
-$book->setAuthor($authorname, $authorname);
-$book->setLanguage("fr");
-$cover = $content_start . "<h1>" . "test" . "</h1>\n";
-if ($authorname) {
-  $cover .= "<h2>By: $authorname</h2>\n";
-}
-$cover .= $content_end;
+$outputFilenameWithoutImages = str_replace('.epub', '-noimage.epub', $outputFilename);
 
+$wep = new WarmEpub();
+echo "\nGenerating Epub without images";
+$wep->generateEpub($selectedHosts, $epubName." sans image", $outputFilenameWithoutImages, false);
+echo "\nDone\n";
+echo "\nepub saved : ".$outputFilenameWithoutImages."\n";
 
+echo "\nGenerating Epub with images";
+$wep->generateEpub($selectedHosts, $epubName, $outputFilename, true);
+echo "\nDone\n";
+echo "\nepub saved : ".$outputFilename."\n";
 
-
-$book->addChapter("Notices", "Cover.html", $cover);
-$book->buildTOC();
-
-$lots = array_chunk($selectedHosts, 10);
-foreach($lots as $lotIndex=>$hosts)
-{
-  $chapterName = "Lot ".($lotIndex+1).'/'.count($lots);
-
-  $content = "";
-
-  $hostIndex = 0;
-  $firstCity = null;
-  foreach($hosts as $host)
-  {
-    if($firstCity == null && $host['city'])
-    {
-      $firstCity = $host['city'];
-      $chapterName.=' - '.$host['city'];
-      echo "\nChapter ".$chapterName;
-    }
-    $hostIndex++;
-    $content.='<hr />';
-    $content.='<h2>'.$host['name'].'</h2>';
-    $content.='<p>'.$host['fullname'].'</p>';
-    $content.='<p>User id : '.$host['uid'].'</p>';
-    $content.='<p>Adresse : '.@$host['street'].' '.@$host['city'].'</p>';
-    $content.='<p>Adresse 2: '.@$host['adress'].'</p>';
-    $content.='<p>Position: '.$host['position'].'</p>';
-    $content.='<p>Logement: '.nl2br(@$host['logement']).'</p>';
-    if(@$host['phones']) {
-      $content .= '<p>Tel: ' . nl2br(implode("\n", @$host['phones'])) . '</p>';
-    }
-    $content.='<p>Reactivité: '.nl2br(@$host['reactivity']).'</p>';
-    $content.='<p>Description: '.nl2br(@$host['description']).'</p>';
-    $content.='<p>Distance: '.(round($host['distance'], 10)).'</p>';
-    $content.='<p>Langue: '.nl2br(@$host['langue']).'</p>';
-    if(@$host['canOffer'])
-    {
-      $content.='<p>canOffer: '.nl2br(implode("\n", @$host['canOffer'])).'</p>';
-    }
-    if(@$host['profilPicture'])
-    {
-      $content.='<p><img src="'.$host['profilPicture'].'" /></p>';
-    }
-
-  }
-
-  $content = '<h1>'.$chapterName.'</h1>'.$content;
-
-  $book->addChapter(
-    $chapterName,
-    $chapterName.".html",
-    $content_start . $content."\n" . $content_end,
-    false,
-    EPub::EXTERNAL_REF_ADD
-  );
-}
-
-$book->addChapter(
-  "Chapter 1",
-  "Chapter1.html",
-  $content_start . "<h1>Chapter 1</h1>\n<p>Plenty of test content</p>\n" . $content_end
-);
-$book->addChapter(
-  "Chapter 2",
-  "Chapter2.html",
-  $content_start . "<h1>Chapter 2</h1>\n<p>Plenty of test content</p>\n" . $content_end
-);
-
-
-$book->finalize();
-$book->saveBook($outputFilename, '/');
-
-
-var_dump(count($selectedHosts));
-//var_dump(array_slice($selectedHosts, 0, 1));
-
-
-//var_dump($hosts);
-
-die();
+echo "\nepub saved : ".$outputFilename."\n";
+echo "\nCan be converted to PDf using http://www.online-convert.com/\n";

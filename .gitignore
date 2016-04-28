@@ -1,3 +1,4 @@
 /lib/.cache*
 .idea
 /vendor/
+/do.sh

@@ -56,7 +56,7 @@ class Warmshowers
     return $matches[1];
   }
 
-  protected $cache = null;
+  protected $cache = array();
   protected function getCache()
   {
     if( ! empty($this->cache))
@@ -77,9 +77,10 @@ class Warmshowers
   protected function setCache($cache)
   {
     $this->cache = $cache;
-    
+
     $cacheFile = __DIR__."/.cache-getHostsByLocation";
-    file_put_contents($cacheFile, json_encode($cache, JSON_PRETTY_PRINT));
+    file_put_contents($cacheFile.'-tmp', json_encode($cache, JSON_PRETTY_PRINT));
+    rename($cacheFile.'-tmp', $cacheFile);
   }
 
   public function getHostsByLocation($minLat, $maxLat, $minLon, $maxLon, $centerLat, $centerLon, $limit=30)
