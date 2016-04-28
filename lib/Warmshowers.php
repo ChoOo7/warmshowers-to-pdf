@@ -38,6 +38,7 @@ class Warmshowers
   {
 
     $form_build_id = $this->getFormBuildId();
+    var_dump($form_build_id);die();
 
     $postData = array(
       'name'=>$username,
@@ -102,7 +103,7 @@ class Warmshowers
 
     $cache = $this->getCache();
     $cacheKey = $minLat.'-'.$maxLat.'-'.$minLon.'-'.$maxLon.'-'.$centerLat.'-'.$centerLon.'-'.$limit;
-    if(array_key_exists($cacheKey, $cache))
+    if(false && array_key_exists($cacheKey, $cache))
     {
       return $cache[$cacheKey];
     }
@@ -133,7 +134,7 @@ class Warmshowers
     ));
 
     $response = $res->getBody();
-
+var_dump((string)$response);
     $responseAsArray = json_decode($response, true);
 
     $return = $responseAsArray['accounts'];
