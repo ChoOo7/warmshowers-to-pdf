@@ -25,6 +25,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 
   $command = "php ".__DIR__.'/cli.php '.escapeshellarg($email).' '.escapeshellarg($password).' '.escapeshellarg($gpxDest).' "" '.escapeshellarg($fromKm).' '.escapeshellarg($toKm).' '.escapeshellarg($reverse).' '.escapeshellarg($_SERVER['SERVER_NAME']);
   $command.='nohup '.$command.' & ';
+  echo $command;
   exec($command);
   $started = true;
 }
@@ -33,6 +34,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 ?>
 <html>
   <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Warmshowers export</title>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
