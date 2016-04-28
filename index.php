@@ -53,7 +53,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
         <p>
           Allow to create an epub file from a GPX file
         </p>
-        <form role="form" method="POST" action="/">
+        <form role="form" method="POST" action="/" enctype="multipart/form-data">
 
           <div class="form-group">
             <label for="email">
