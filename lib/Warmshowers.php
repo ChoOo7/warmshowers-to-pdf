@@ -56,14 +56,19 @@ class Warmshowers
     return $matches[1];
   }
 
+  protected $cache = null;
   protected function getCache()
   {
-    $cacheContent = array();
+    if( ! empty($this->cache))
+    {
+      return $this->cache;
+    }
     $cacheFile = __DIR__."/.cache-getHostsByLocation";
     $cacheContent = @file_get_contents($cacheFile);
     if($cacheContent)
     {
-      return json_decode($cacheContent, true);
+      $this->cache = json_decode($cacheContent, true);
+      return $this->cache;
     }else{
       return array();
     }
@@ -71,7 +76,8 @@ class Warmshowers
 
   protected function setCache($cache)
   {
-    $cacheContent = array();
+    $this->cache = $cache;
+    
     $cacheFile = __DIR__."/.cache-getHostsByLocation";
     file_put_contents($cacheFile, json_encode($cache, JSON_PRETTY_PRINT));
   }

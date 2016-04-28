@@ -32,7 +32,7 @@ $gpx = new Gpx($gpxFilename);
 
 $points = $gpx->getPointsOfGPX();
 
-$gpx->decreasePointsNumber(3);
+$gpx->decreasePointsNumber(3);//un point tous les 3 kms
 
 $points = $gpx->getPointsOfGPX();
 
@@ -41,15 +41,20 @@ $selectedHosts = array();
 
 //$points = array_slice($points, 0, 5);
 
-$start = $points[0];
+$lastPoint = $start = $points[0];
+$distance = 0;
 foreach($points as $pointIndex=>$point)
 {
   $lat0 = $point['lat'];
   $lon0 = $point['lon'];
 
+  $segDistance = Gpx::distance($lastPoint['lat'], $lastPoint['lon'], $point['lat'], $point['lon']);
+  $lastPoint = $point;
+
+  $distance += $segDistance;
   if($fromKm)
   {
-    if(Gpx::distance($start['lat'], $start['lon'], $point['lat'], $point['lon']) < ($fromKm))
+    if($distance < ($fromKm))
     {
       echo "\nHors carte";
       continue;
@@ -58,7 +63,7 @@ foreach($points as $pointIndex=>$point)
 
   if($toKm)
   {
-    if(Gpx::distance($start['lat'], $start['lon'], $point['lat'], $point['lon']) > ($toKm))
+    if($distance > ($toKm))
     {
       break;
     }
@@ -92,7 +97,7 @@ foreach($points as $pointIndex=>$point)
   }
   die();
   */
-  echo "\n".($pointIndex+1).'/'.count($points)." - ".$centerLat.','.$centerLon.' : '.count($hosts)." hosts";
+  echo "\n".($pointIndex+1).'/'.count($points)." - ".round($distance)." -  ".$centerLat.','.$centerLon.' : '.count($hosts)." hosts";
 
   foreach($hosts as $host)
   {
@@ -117,7 +122,7 @@ foreach($points as $pointIndex=>$point)
   }
 }
 
-$selectedHosts = array_slice($selectedHosts, 0, 100, true);
+//$selectedHosts = array_slice($selectedHosts, 0, 100, true);
 
 $hostIndex = 0;
 foreach($selectedHosts as $uid=>$host)
