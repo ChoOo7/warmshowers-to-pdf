@@ -5,7 +5,7 @@ FROM ubuntu:latest
 
 
 RUN apt-get update
-RUN  apt-get install -y wget nano curl openssl mcrypt php5-cli apache2
+RUN  apt-get install -y wget nano curl openssl mcrypt php7.0-cli apache2
 
 ADD timezone.ini /usr/local/etc/php/conf.d/timezone.ini
 ADD memory.ini /usr/local/etc/php/conf.d/memory.ini
