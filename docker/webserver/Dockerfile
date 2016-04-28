@@ -3,18 +3,18 @@
 FROM ubuntu:latest
 
 
-ADD symfony.conf /etc/apache2/sites-available/
-RUN ln -s /etc/apache2/sites-available/symfony.conf /etc/apache2/sites-enabled/symfony.conf
-RUN ln -s  /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/
-#RUN rm /etc/apache2/sites-enabled/*default*
-
 
 RUN apt-get update
-RUN  apt-get install -y wget nano curl openssl mcrypt php5-cli
+RUN  apt-get install -y wget nano curl openssl mcrypt php5-cli apache2
 
 ADD timezone.ini /usr/local/etc/php/conf.d/timezone.ini
 ADD memory.ini /usr/local/etc/php/conf.d/memory.ini
 
+
+ADD symfony.conf /etc/apache2/sites-available/
+RUN ln -s /etc/apache2/sites-available/symfony.conf /etc/apache2/sites-enabled/symfony.conf
+RUN ln -s  /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/
+#RUN rm /etc/apache2/sites-enabled/*default*
 
 
 ADD bashrc /root/.bashrc
