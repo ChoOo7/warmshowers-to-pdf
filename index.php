@@ -24,7 +24,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
   move_uploaded_file($_FILES['gpxFile']['tmp_name'], $gpxDest);
 
   $command = "php ".__DIR__.'/cli.php '.escapeshellarg($email).' '.escapeshellarg($password).' '.escapeshellarg($gpxDest).' "" '.escapeshellarg($fromKm).' '.escapeshellarg($toKm).' '.escapeshellarg($reverse).' '.escapeshellarg($_SERVER['SERVER_NAME']);
-  $command.='nohup '.$command.' & ';
+  $command ='nohup '.$command.' & ';
   echo $command;
   exec($command);
   $started = true;
