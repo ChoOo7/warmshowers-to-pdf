@@ -4,9 +4,63 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "0c7801379d1c794f25438bfe2fe7f5ea",
-    "content-hash": "62fd14b8ea3e121cceb0d0147183bd77",
+    "hash": "1d4a14b95aa07c1c5b06c2af4f30119a",
+    "content-hash": "edcd216b059598c9812292bb95068a74",
     "packages": [
+        {
+            "name": "fastglass/sendgrid",
+            "version": "1.0.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/taz77/sendgrid-php-ng.git",
+                "reference": "db94388c2c474ed8a2cabfc1ccc35f241a86a60c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/taz77/sendgrid-php-ng/zipball/db94388c2c474ed8a2cabfc1ccc35f241a86a60c",
+                "reference": "db94388c2c474ed8a2cabfc1ccc35f241a86a60c",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": ">=6.0.0",
+                "php": ">=5.5.0",
+                "sendgrid/smtpapi": "~0.5"
+            },
+            "replace": {
+                "sendgrid/sendgrid-php": "*"
+            },
+            "require-dev": {
+                "mockery/mockery": "~0.9",
+                "phpunit/phpunit": "~4.4",
+                "vlucas/phpdotenv": "~1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "SendGrid\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Brady Owens",
+                    "email": "brady@fastglass.net",
+                    "homepage": "https://github.com/taz77"
+                }
+            ],
+            "description": "This library allows you to send emails through SendGrid using PHP and Guzzle 6.x.",
+            "homepage": "https://github.com/taz77/sendgrid-php",
+            "keywords": [
+                "email",
+                "grid",
+                "send",
+                "sendgrid"
+            ],
+            "time": "2016-06-30 09:57:34"
+        },
         {
             "name": "grandt/binstring",
             "version": "1.0.0",
@@ -525,6 +579,54 @@
                 "response"
             ],
             "time": "2015-05-04 20:22:00"
+        },
+        {
+            "name": "sendgrid/smtpapi",
+            "version": "0.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sendgrid/smtpapi-php.git",
+                "reference": "05ccf57bad5d1524e479b6dc0a2dfade88b3fbe5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sendgrid/smtpapi-php/zipball/05ccf57bad5d1524e479b6dc0a2dfade88b3fbe5",
+                "reference": "05ccf57bad5d1524e479b6dc0a2dfade88b3fbe5",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3"
+            },
+            "replace": {
+                "sendgrid/smtpapi-php": "*"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Smtpapi": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Build SendGrid X-SMTPAPI headers in PHP.",
+            "homepage": "http://github.com/sendgrid/smtpapi-php",
+            "keywords": [
+                "X-SMTP",
+                "api",
+                "email",
+                "grid",
+                "send",
+                "sendgrid",
+                "smtp",
+                "smtpapi",
+                "xsmtp"
+            ],
+            "time": "2015-04-14 02:37:45"
         }
     ],
     "packages-dev": [],

@@ -9,6 +9,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
   $reverse = @$_REQUEST['reverse'];
   $fromKm = $_REQUEST['fromKm'];
   $toKm = $_REQUEST['toKm'];
+  $searchInSquareOfXMeters = $_REQUEST['searchInSquareOfXMeters'];
+  $includeImage = $_REQUEST['includeImage'];
 
   $fileName = $_FILES['gpxFile']['name'];
   if(strpos($fileName, '.php') !== false || strpos($fileName, '.gpx') === false)
@@ -23,7 +25,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 
   move_uploaded_file($_FILES['gpxFile']['tmp_name'], $gpxDest);
 
-  $command = "php ".__DIR__.'/cli.php '.escapeshellarg($email).' '.escapeshellarg($password).' '.escapeshellarg($gpxDest).' "" '.escapeshellarg($fromKm).' '.escapeshellarg($toKm).' '.escapeshellarg($reverse).' '.escapeshellarg($_SERVER['SERVER_NAME']);
+  $command = "php ".__DIR__.'/cli.php '.escapeshellarg($email).' '.escapeshellarg($password).' '.escapeshellarg($gpxDest).' "" '.escapeshellarg($fromKm).' '.escapeshellarg($toKm).' '.escapeshellarg($reverse).' '.escapeshellarg($_SERVER['SERVER_NAME']).' '.escapeshellarg($searchInSquareOfXMeters).' '.($includeImage ? "true" : "false");
   $command ='nohup '.$command.' & ';
   echo $command;
   exec($command);
@@ -102,6 +104,27 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
               To KM (Optional)
             </label>
             <input type="text" class="form-control" id="toKm" name="toKm"/>
+          </div>
+
+          <div class="form-group">
+            <label for="searchInSquareOfXMeters">
+              Search around X meters around each GPX point
+            </label>
+            <input type="text" class="form-control" id="searchInSquareOfXMeters" name="searchInSquareOfXMeters" value="5000" />
+            <p class="help-block">
+              For each point of gpx file, we will search hosts in a square of X meters
+            </p>
+          </div>
+
+
+          
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" name="includeImage" value="1" /> Include host image
+            </label>
+            <p class="help-block">
+              
+            </p>
           </div>
 
           <button type="submit" class="btn btn-default">

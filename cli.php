@@ -9,26 +9,38 @@ require_once(__DIR__.'/lib/Warmshowers.php');
 require_once(__DIR__.'/lib/Gpx.php');
 require_once(__DIR__.'/lib/WarmEpub.php');
 require_once(__DIR__.'/vendor/autoload.php');
+//require_once(__DIR__.'/vendor/fastglass/sendgrid/src/autoloader.php');
+
+if(file_exists(__DIR__.'/config.php'))
+{
+  require_once(__DIR__ . '/config.php');
+}
 
 $username=$argv[1];
 $password=$argv[2];
 $gpxFilename=$argv[3];
 $outputFilename=@$argv[4];
 
+
 $fromKm=@$argv[5];
 $toKm=@$argv[6];
 
 $reverseOrder=@$argv[7] == "1";
 $serverName=@$argv[8];
+$searchInSquareOfXMeters=@$argv[9];
+$includeImage=@$argv[10] == "true";
 
-$includeImage = true;
+//$includeImage = true;
 
 if(empty($outputFilename))
 {
   $outputFilename = str_replace('.gpx', '', $gpxFilename).'.epub';
 }
 
-$searchInSquareOfXMeters = 5000;
+if(empty($searchInSquareOfXMeters))
+{
+  $searchInSquareOfXMeters = 5000;
+}
 $dx = $dy = $searchInSquareOfXMeters;
 
 $ws = new \ChoOo7\Warmshowers();
@@ -41,7 +53,6 @@ $points = $gpx->getPointsOfGPX();
 $gpx->decreasePointsNumber(3);//un point tous les 3 kms
 
 $points = $gpx->getPointsOfGPX();
-
 
 $selectedHosts = array();
 
@@ -76,9 +87,6 @@ foreach($points as $pointIndex=>$point)
   }
 
 
-  //$lat = $lat0 + (180/pi())*($dy/6378137);
-  //$lon = $lon0 + (180/pi())*($dx/6378137)/cos($lat0);
-
   $minLat = $lat0 - (180/pi())*($dy/6378137);
   $maxLat = $lat0 + (180/pi())*($dy/6378137);
 
@@ -104,20 +112,8 @@ foreach($points as $pointIndex=>$point)
   $centerLon = $lon0;
 
   $limit = 50;
-/*
-  var_dump($centerLat.','.$centerLon);
-  var_dump($minLat.','.$minLon);
-  var_dump($maxLat.','.$maxLon);
-  */
-
   $hosts = $ws->getHostsByLocation($minLat, $maxLat, $minLon, $maxLon, $centerLat, $centerLon, $limit);
-  /*
-  foreach ($hosts as $host)
-  {
-    var_dump($host['uid']);
-  }
-  die();
-  */
+  
   echo "\n".($pointIndex+1).'/'.count($points)." - ".round($distance)." -  ".$centerLat.','.$centerLon.' : '.count($hosts)." hosts";
 
   foreach($hosts as $host)
@@ -171,17 +167,21 @@ $epubName = str_replace('.gpx', '', $epubName);
 $outputFilenameWithoutImages = str_replace('.epub', '-noimage.epub', $outputFilename);
 
 $wep = new WarmEpub();
-echo "\nGenerating Epub without images";
-$wep->generateEpub($selectedHosts, $epubName." sans image", $outputFilenameWithoutImages, false);
-echo "\nDone\n";
-echo "\nepub saved : ".$outputFilenameWithoutImages."\n";
+if($includeImage)
+{
+  echo "\nGenerating Epub with images";
+  $wep->generateEpub($selectedHosts, $epubName, $outputFilename, true);
+  echo "\nDone\n";
+  echo "\nepub saved : ".$outputFilename."\n";
 
-echo "\nGenerating Epub with images";
-$wep->generateEpub($selectedHosts, $epubName, $outputFilename, true);
-echo "\nDone\n";
-echo "\nepub saved : ".$outputFilename."\n";
+}else
+{
+  echo "\nGenerating Epub without images";
+  $wep->generateEpub($selectedHosts, $epubName . " sans image", $outputFilenameWithoutImages, false);
+  echo "\nDone\n";
+  echo "\nepub saved : " . $outputFilenameWithoutImages . "\n";
+}
 
-echo "\nepub saved : ".$outputFilename."\n";
 echo "\nCan be converted to PDf using http://www.online-convert.com/\n";
 
 
@@ -192,15 +192,34 @@ if($serverName) {
 
   $mailBody = 'Votre fichier WarmShowers est disponible';
   $mailBody .= "\n".'Celui-ci est disponible temporairement en téléchargement à l\'adresse suviante : ';
-  $mailBody .= "\n"."Version sans image : ".$httpLinkWithoutImages;
-  $mailBody .= "\n"."Version avec image : ".$httpLinkWithImages;
+  if($includeImage)
+  {
+    $mailBody .= "\n" . "Version avec image : " . $httpLinkWithImages;
+  }else{
+    $mailBody .= "\n"."Version sans image : ".$httpLinkWithoutImages;
+  }
+  $mailBody .= "\n";
+  $mailBody .= "\n"."Can be converted to PDf using http://www.online-convert.com/";
   $mailBody .= "\n";
   $mailBody .= "\nPar Simon Minotto - https://github.com/ChoOo7/warmshowers-to-pdf";
   $mailBody .= "\n";
 
   echo "\n".$mailBody;
 
-  mail($username, 'Warmshowers generated files', $mailBody);
+  if(isset($_config))
+  {
+    $apiKey = $_config['sendgridApiKey'];
+    $from = $_config['fromEmail'];
+
+    $sendGrid = new \SendGrid\Client($apiKey);
+    $email = new \SendGrid\Email();
+
+    $email->addTo($username)->setFrom($from)->setSubject("Warmshowers generated files")->setText($mailBody)->setHtml(nl2br($mailBody));
+
+    $sendGrid->send($email);
+  }else{
+    mail($username, 'Warmshowers generated files', $mailBody);
+  }
 
   echo "\n";
 }

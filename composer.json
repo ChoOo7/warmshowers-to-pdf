@@ -1,6 +1,7 @@
 {
     "require": {
         "guzzlehttp/guzzle": "^6.2",
-        "grandt/phpepub": "4.0.7.1"
+        "grandt/phpepub": "4.0.7.1",
+        "fastglass/sendgrid": "^1.0"
     }
 }

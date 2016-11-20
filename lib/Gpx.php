@@ -44,9 +44,8 @@ class Gpx
     }
   }
 
-  public function decreasePointsNumber($minDistanceBeetweenPointsInKm = 5000)
+  public function decreasePointsNumber($minDistanceBeetweenPointsInKm = 5)
   {
-    $minDistanceBeetweenPointsInKm = 5;
     $this->loadPointsOfGPX();
     $points = array();
     $actualPoint = null;
