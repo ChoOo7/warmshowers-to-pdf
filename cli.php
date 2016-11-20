@@ -49,8 +49,14 @@ $sessionIdentifier = $ws->login($username, $password);
 $gpx = new Gpx($gpxFilename);
 
 $points = $gpx->getPointsOfGPX();
+echo "\n".count($points)." points";
 
-$gpx->decreasePointsNumber(3);//un point tous les 3 kms
+$gpx->increasePointsNumber(1);//un point tous les 1 km au minimum
+$points = $gpx->getPointsOfGPX();
+echo "\n".count($points)." points after increasing";
+$gpx->decreasePointsNumber(1);//un point tous les 1 km au maximum
+$points = $gpx->getPointsOfGPX();
+echo "\n".count($points)." points after decreasing";
 
 $points = $gpx->getPointsOfGPX();
 
@@ -111,7 +117,7 @@ foreach($points as $pointIndex=>$point)
   $centerLat = $lat0;
   $centerLon = $lon0;
 
-  $limit = 50;
+  $limit = 150;
   $hosts = $ws->getHostsByLocation($minLat, $maxLat, $minLon, $maxLon, $centerLat, $centerLon, $limit);
   
   echo "\n".($pointIndex+1).'/'.count($points)." - ".round($distance)." -  ".$centerLat.','.$centerLon.' : '.count($hosts)." hosts";

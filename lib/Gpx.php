@@ -66,6 +66,61 @@ class Gpx
     }
     $this->points = $points;
   }
+  
+  protected function midPoint($lat1, $lon1, $lat2, $lon2)
+  {
+    $dLon = deg2rad($lon2 - $lon1);
+
+    //convert to radians
+    $lat1 = deg2rad($lat1);
+    $lat2 = deg2rad($lat2);
+    $lon1 = deg2rad($lon1);
+
+    $Bx = cos($lat2) * cos($dLon);
+    $By = cos($lat2) * sin($dLon);
+    $lat3 = atan2(sin($lat1) + sin($lat2), sqrt((cos($lat1) + $Bx) * (cos($lat1) + $Bx) + $By * $By));
+    $lon3 = $lon1 + atan2($By, cos($lat1) + $Bx);
+    $lat3 = rad2deg($lat3);
+    $lon3 = rad2deg($lon3);
+    return array('lat'=>$lat3, 'lon'=>$lon3);
+  }
+  
+  
+  public function increasePointsNumber($maxDistanceBeetweenPointsInKm = 5)
+  {
+    $isPrecisionOk = true;
+    $this->loadPointsOfGPX();
+    $points = array();
+    $actualPoint = null;
+    foreach($this->points as $point)
+    {
+      if($actualPoint == null)
+      {
+        $actualPoint = $point;
+        $points[] = $actualPoint;
+        continue;
+      }
+      if(self::distance($actualPoint['lat'], $actualPoint['lon'], $point['lat'], $point['lon'], 'K') >= $maxDistanceBeetweenPointsInKm)
+      {
+        //We have to create a point ! 
+        $isPrecisionOk = false;
+        $newPoint = $this->midPoint($actualPoint['lat'], $actualPoint['lon'], $point['lat'], $point['lon']);
+        $points[]=$newPoint;
+        $points[]=$actualPoint;
+        $actualPoint = $newPoint;
+      }else{
+        $actualPoint = $point;
+        $points[] = $actualPoint;
+        continue;
+      }
+    }
+    $this->points = $points;
+    
+    if( ! $isPrecisionOk)
+    {
+      $this->increasePointsNumber($maxDistanceBeetweenPointsInKm);
+    }
+  }
 
   public static function distance($lat1, $lon1, $lat2, $lon2, $unit = 'K') {
 

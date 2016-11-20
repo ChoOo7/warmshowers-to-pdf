@@ -74,7 +74,7 @@ class Warmshowers
     {
       return $this->cache;
     }
-    $cacheFile = __DIR__."/.cache-getHostsByLocation";
+    $cacheFile = __DIR__."/../cache/cache-getHostsByLocation";
     $cacheContent = @file_get_contents($cacheFile);
     if($cacheContent)
     {
@@ -89,7 +89,7 @@ class Warmshowers
   {
     $this->cache = $cache;
 
-    $cacheFile = __DIR__."/.cache-getHostsByLocation";
+    $cacheFile = __DIR__."/../cache/cache-getHostsByLocation";
     file_put_contents($cacheFile.'-tmp', json_encode($cache, JSON_PRETTY_PRINT));
     rename($cacheFile.'-tmp', $cacheFile);
   }
@@ -130,7 +130,7 @@ class Warmshowers
     ));
 
     $response = $res->getBody();
-var_dump((string)$response);
+
     $responseAsArray = json_decode($response, true);
 
     $return = $responseAsArray['accounts'];

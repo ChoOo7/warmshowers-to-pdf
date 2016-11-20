@@ -1,5 +1,6 @@
 /lib/.cache*
 /config.php
+/cache/*
 /nohup.out
 .idea
 /vendor/
