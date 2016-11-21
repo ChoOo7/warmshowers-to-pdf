@@ -5,21 +5,28 @@ use ChoOo7\Gpx;
 use ChoOo7\WarmEpub;
 use PHPePub\Core\EPub;
 
+require_once(__DIR__.'/check-config.php');
+
 require_once(__DIR__.'/lib/Warmshowers.php');
 require_once(__DIR__.'/lib/Gpx.php');
 require_once(__DIR__.'/lib/WarmEpub.php');
 require_once(__DIR__.'/vendor/autoload.php');
-//require_once(__DIR__.'/vendor/fastglass/sendgrid/src/autoloader.php');
 
 if(file_exists(__DIR__.'/config.php'))
 {
   require_once(__DIR__ . '/config.php');
 }
 
+
+ini_set('memory_limit', '2048M');
+ini_set('max_execution_time', 3600);
+
+
 $username=$argv[1];
 $password=$argv[2];
 $gpxFilename=$argv[3];
-$outputFilename=@$argv[4];
+$baseOutputFilename=@$argv[4];
+
 
 
 $fromKm=@$argv[5];
@@ -32,10 +39,14 @@ $includeImage=@$argv[10] == "true";
 
 //$includeImage = true;
 
-if(empty($outputFilename))
+if(empty($baseOutputFilename))
 {
-  $outputFilename = str_replace('.gpx', '', $gpxFilename).'.epub';
+  $baseOutputFilename = str_replace('.gpx', '', $gpxFilename).'';
 }
+
+$epubOutputFilename = $baseOutputFilename.'.epub';
+$jsonOutputFilename = $baseOutputFilename.'.json';
+$excelOutputFilename = $baseOutputFilename.'.xlsx';
 
 if(empty($searchInSquareOfXMeters))
 {
@@ -44,7 +55,7 @@ if(empty($searchInSquareOfXMeters))
 $dx = $dy = $searchInSquareOfXMeters;
 
 $ws = new \ChoOo7\Warmshowers();
-$sessionIdentifier = $ws->login($username, $password);
+$sessionIdentifier = $ws->setAuthInfo($username, $password);
 
 $gpx = new Gpx($gpxFilename);
 
@@ -117,7 +128,7 @@ foreach($points as $pointIndex=>$point)
   $centerLat = $lat0;
   $centerLon = $lon0;
 
-  $limit = 150;
+  $limit = 500;
   $hosts = $ws->getHostsByLocation($minLat, $maxLat, $minLon, $maxLon, $centerLat, $centerLon, $limit);
   
   echo "\n".($pointIndex+1).'/'.count($points)." - ".round($distance)." -  ".$centerLat.','.$centerLon.' : '.count($hosts)." hosts";
@@ -169,49 +180,48 @@ echo "\nGenerating Epub";
 
 $epubName = basename($gpxFilename);
 $epubName = str_replace('.gpx', '', $epubName);
-
-$outputFilenameWithoutImages = str_replace('.epub', '-noimage.epub', $outputFilename);
-
 $wep = new WarmEpub();
 if($includeImage)
 {
   echo "\nGenerating Epub with images";
-  $wep->generateEpub($selectedHosts, $epubName, $outputFilename, true);
+  $wep->generateEpub($selectedHosts, $epubName, $epubOutputFilename, true);
   echo "\nDone\n";
   echo "\nepub saved : ".$outputFilename."\n";
 
 }else
 {
   echo "\nGenerating Epub without images";
-  $wep->generateEpub($selectedHosts, $epubName . " sans image", $outputFilenameWithoutImages, false);
+  $wep->generateEpub($selectedHosts, $epubName . " sans image", $epubOutputFilename, false);
   echo "\nDone\n";
-  echo "\nepub saved : " . $outputFilenameWithoutImages . "\n";
+  echo "\nepub saved : " . $epubOutputFilename . "\n";
 }
+
+$wep->generateJson($selectedHosts, $jsonOutputFilename);
+$wep->generateXslx($selectedHosts, $excelOutputFilename);
 
 echo "\nCan be converted to PDf using http://www.online-convert.com/\n";
 
 
 if($serverName) {
   $httpBaseLink = "http://" . $serverName . "/generated/";
-  $httpLinkWithoutImages = $httpBaseLink . basename($outputFilenameWithoutImages);
-  $httpLinkWithImages = $httpBaseLink . basename($outputFilename);
-
+  $epubHttpLink= $httpBaseLink . basename($epubOutputFilename);
+  $jsonHttpLink= $httpBaseLink . basename($jsonOutputFilename);
+  $excelHttpLink= $httpBaseLink . basename($excelOutputFilename);
+  
   $mailBody = 'Votre fichier WarmShowers est disponible';
   $mailBody .= "\n".'Celui-ci est disponible temporairement en téléchargement à l\'adresse suviante : ';
-  if($includeImage)
-  {
-    $mailBody .= "\n" . "Version avec image : " . $httpLinkWithImages;
-  }else{
-    $mailBody .= "\n"."Version sans image : ".$httpLinkWithoutImages;
-  }
+  $mailBody .= "\n"."Epub : ".$epubHttpLink;
+  $mailBody .= "\n"."Json : ".$jsonHttpLink;
+  $mailBody .= "\n"."Excel : ".$excelOutputFilename;
   $mailBody .= "\n";
-  $mailBody .= "\n"."Can be converted to PDf using http://www.online-convert.com/";
+  $mailBody .= "\n"."EPUB can be converted to PDf using http://www.online-convert.com/";
   $mailBody .= "\n";
   $mailBody .= "\nPar Simon Minotto - https://github.com/ChoOo7/warmshowers-to-pdf";
   $mailBody .= "\n";
 
   echo "\n".$mailBody;
 
+  echo "\nTrying to send mail : ";
   if(isset($_config))
   {
     $apiKey = $_config['sendgridApiKey'];
@@ -226,6 +236,7 @@ if($serverName) {
   }else{
     mail($username, 'Warmshowers generated files', $mailBody);
   }
+  echo $mailBody;
 
   echo "\n";
 }

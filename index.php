@@ -1,5 +1,7 @@
 <?php
 
+require_once(__DIR__.'/check-config.php');
+
 $started = false;
 
 if($_SERVER['REQUEST_METHOD'] == 'POST')
@@ -13,9 +15,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
   $includeImage = $_REQUEST['includeImage'];
 
   $fileName = $_FILES['gpxFile']['name'];
-  if(strpos($fileName, '.php') !== false || strpos($fileName, '.gpx') === false)
+  if(strpos($fileName, '.php') !== false || strpos($fileName, '.gpx') === false || strpos($fileName, '.htaccess') !== false)
   {
-    echo "ERROR";
+    echo "ERROR - forbidden file type";
     die();
   }
 
@@ -61,7 +63,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
           Warmshowers hosts export from GPX file
         </h2>
         <p>
-          Allow to create an epub file from a GPX file
+          Allow to create an epub / excel / json file from a GPX file
         </p>
         <form role="form" method="POST" action="/" enctype="multipart/form-data">
 
@@ -122,11 +124,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
             </p>
           </div>
 
-
-          
           <div class="checkbox">
             <label>
-              <input type="checkbox" name="includeImage" value="1" /> Include host image
+              <input type="checkbox" name="includeImage" value="1" /> Include host image in epub
             </label>
             <p class="help-block">
               
@@ -141,9 +141,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
     </div>
   </div>
   <?php if($started): ?>
-  <script>
-    alert("Generation lancée. Vous recevrez le resultat par email");
-  </script>
+    <script type="text/javascript">
+      alert("Generation started, you will receive some information by email after the generation process");
+    </script>
   <?php endif; ?>
 
 </body>

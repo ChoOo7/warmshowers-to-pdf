@@ -34,6 +34,7 @@ class WarmEpub
     $lots = array_chunk($hosts, 10);
     foreach($lots as $lotIndex=>$subHosts)
     {
+      ini_set('max_execution_time', 3600);
       $chapterName = "Lot ".($lotIndex+1).'/'.count($lots);
 
       $content = "";
@@ -88,8 +89,73 @@ class WarmEpub
     }
 
     $book->finalize();
-    
+
     $book->saveBook($outputFilename, '/');
+  }
+
+  public function getDataFromHosts($hosts)
+  {
+    $data = array();
+
+    foreach($hosts as $host)
+    {
+      $item = array();
+      $item['city'] = $host['city'];
+      $item['hostUid'] = $host['uid'];
+      //TODO : change to valid urtl
+      $item['profileLink'] = 'https://warmshower.fr/profile/member/'.$host['uid'];
+      $item['name'] = $host['name'];
+      $item['full name'] = $host['fullname'];
+      $item['adress'] = @$host['street'].' '.@$host['city'];
+      $item['adress 2'] = @$host['adress'];
+      $item['position'] = $host['position'];
+      $item['accomodation'] = (@$host['logement']);
+      if( ! empty($host['phones']))
+      {
+        $item['phones'] = implode("\n", @$host['phones']);
+      }
+      $item['reactivity'] = @$host['reactivity'];
+      $item['description'] = @$host['description'];
+      $item['distanceFromRoute'] = round($host['distance'], 10);
+      $item['langages'] = @$host['langue'];
+      $item['canOffer'] = implode("\n", @$host['canOffer']);
+      
+      $data[]=$item;
+    }
+    return $data;
+  }
+
+  public function generateXslx($hosts, $outputFilename)
+  {
+    $data = $this->getDataFromHosts($hosts);
+
+    $header = array_keys($data[0]);
+
+    $excel = new \PHPExcel();
+    $sheet = $excel->getActiveSheet();
+    $row = 1;
+    foreach($header as $k=>$v)
+    {
+      $sheet->setCellValueByColumnAndRow($k, $row, $v);
+    }
+    foreach($data as $item)
+    {
+      $row++;
+      $item = array_values($item);//to have numerical index
+      foreach($item as $k=>$v)
+      {
+        $sheet->setCellValueByColumnAndRow($k, $row, $v);
+      }
+    }
+    $objWriter = new \PHPExcel_Writer_Excel2007($excel);
+    $objWriter->save($outputFilename);
+  }
+
+  public function generateJson($hosts, $outputFilename)
+  {
+    $data = $this->getDataFromHosts($hosts);
+
+    file_put_contents($outputFilename, json_encode($data, JSON_PRETTY_PRINT));
   }
 
   protected function getContentStart($bookName)

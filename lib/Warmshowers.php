@@ -34,8 +34,26 @@ class Warmshowers
 
     return $matches[1];
   }
+  
+  protected $username;
+  protected $password;
+  public function setAuthInfo($username, $password)
+  {
+    $this->username = $username;
+    $this->password = $password;
+  }
+  
+  public function loginIfNecessary()
+  {
+    static $logged = false;
+    if( ! $logged)
+    {
+      $this->login($this->username, $this->password);
+      $logged = true;
+    }
+  }
 
-  public function login($username, $password)
+  public function login()
   {
     $res = $this->client->request('GET', self::SITE_BASE_URL.'', array(
       'debug'=>$this->debug
@@ -43,8 +61,8 @@ class Warmshowers
 
     $form_build_id = $this->getFormBuildId();
     $postData = array(
-      'name'=>$username,
-      'pass'=>$password,
+      'name'=>$this->username,
+      'pass'=>$this->password,
       'form_build_id'=>$form_build_id,
       'form_id'=>'user_login',
       'op'=>'Se connecter'
@@ -59,6 +77,7 @@ class Warmshowers
 
   public function getCSRFToken()
   {
+    $this->loginIfNecessary();
     $res = $this->client->request('GET', self::SITE_BASE_URL.'', array(
       'debug'=>$this->debug
     ));
@@ -68,39 +87,48 @@ class Warmshowers
   }
 
   protected $cache = array();
-  protected function getCache()
+  protected function getCache($lon, $lat)
   {
-    if( ! empty($this->cache))
+    $lon = round($lon);
+    $lat = round($lat);
+    
+    $cacheKey = $lon.'-'.$lat;
+    if( ! empty($this->cache) && array_key_exists($cacheKey, $this->cache))
     {
-      return $this->cache;
+      return $this->cache[$cacheKey];
     }
-    $cacheFile = __DIR__."/../cache/cache-getHostsByLocation";
+    
+    $cacheFile = __DIR__."/../cache/cache-getHostsByLocation".$lon."-".$lat;
     $cacheContent = @file_get_contents($cacheFile);
     if($cacheContent)
     {
-      $this->cache = json_decode($cacheContent, true);
-      return $this->cache;
+      $this->cache[$cacheKey] = json_decode($cacheContent, true);
+      return $this->cache[$cacheKey];
     }else{
       return array();
     }
   }
 
-  protected function setCache($cache)
+  protected function setCache($lon, $lat, $cache)
   {
-    $this->cache = $cache;
+    $lon = round($lon);
+    $lat = round($lat);
 
-    $cacheFile = __DIR__."/../cache/cache-getHostsByLocation";
+    $cacheKey = $lon.'-'.$lat;
+    $this->cache[$cacheKey] = $cache;
+
+    $cacheFile = __DIR__."/../cache/cache-getHostsByLocation".$lon."-".$lat;
     file_put_contents($cacheFile.'-tmp', json_encode($cache, JSON_PRETTY_PRINT));
     rename($cacheFile.'-tmp', $cacheFile);
   }
 
   public function getHostsByLocation($minLat, $maxLat, $minLon, $maxLon, $centerLat, $centerLon, $limit=30)
   {
-
-    $cache = $this->getCache();
+    $cache = $this->getCache($minLat, $minLon);
     $cacheKey = $minLat.'-'.$maxLat.'-'.$minLon.'-'.$maxLon.'-'.$centerLat.'-'.$centerLon.'-'.$limit;
     if(array_key_exists($cacheKey, $cache))
     {
+      echo "\nIN cache";
       return $cache[$cacheKey];
     }
 
@@ -135,7 +163,7 @@ class Warmshowers
 
     $return = $responseAsArray['accounts'];
     $cache[$cacheKey] = $return;
-    $this->setCache($cache);
+    $this->setCache($minLat, $minLon, $cache);
 
     return $return;
 
@@ -163,12 +191,16 @@ class Warmshowers
 
   public function getHostInformations($uid)
   {
-    $cache = $this->getCache();
+    $cache = $this->getCache(0, 0);
     $cacheKey = 'user-'.$uid;
     if(array_key_exists($cacheKey, $cache))
     {
       return $cache[$cacheKey];
     }
+    
+    echo "\nRequestin host info";
+
+    $this->loginIfNecessary();
 
     $res = $this->client->request('GET', self::SITE_BASE_URL.'user/'.$uid, array(
       'debug'=>$this->debug
@@ -177,7 +209,8 @@ class Warmshowers
     $response = $res->getBody();
 
     $infos = array();
-
+    
+    //TODO : manage parsing from english language
     if(preg_match('!.*<h4>Cet hôte peut offrir</h4>(\s)*+<ul>(\s)*+(.*)(\s)*</ul>.*!Uis', $response, $matches))
     {
       $canOffer = str_replace('<li>', '', $matches[3]);
@@ -224,8 +257,8 @@ class Warmshowers
     }
 
     $cache[$cacheKey] = $infos;
-    $this->setCache($cache);
-
+    
+    $this->setCache(0, 0, $cache);
     return $infos;
   }
 

@@ -106,7 +106,7 @@ class Gpx
         $isPrecisionOk = false;
         $newPoint = $this->midPoint($actualPoint['lat'], $actualPoint['lon'], $point['lat'], $point['lon']);
         $points[]=$newPoint;
-        $points[]=$actualPoint;
+        $points[]=$point;
         $actualPoint = $newPoint;
       }else{
         $actualPoint = $point;
