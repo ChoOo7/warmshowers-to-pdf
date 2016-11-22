@@ -55,6 +55,7 @@ class WarmEpub
         $content.='<h2>'.$host['name'].'</h2>';
         $content.='<p>'.$host['fullname'].'</p>';
         $content.='<p>User id : '.$host['uid'].'</p>';
+        $content.='<p>Profile page : '.'https://en.warmshowers.org/user/'.$host['uid'].'</p>';        
         $content.='<p>Adresse : '.@$host['street'].' '.@$host['city'].'</p>';
         $content.='<p>Adresse 2: '.@$host['adress'].'</p>';
         $content.='<p>Position: '.$host['position'].'</p>';
@@ -102,8 +103,7 @@ class WarmEpub
       $item = array();
       $item['city'] = $host['city'];
       $item['hostUid'] = $host['uid'];
-      //TODO : change to valid urtl
-      $item['profileLink'] = 'https://warmshower.fr/profile/member/'.$host['uid'];
+      $item['profileLink'] = 'https://en.warmshowers.org/user/'.$host['uid'];
       $item['name'] = $host['name'];
       $item['full name'] = $host['fullname'];
       $item['adress'] = @$host['street'].' '.@$host['city'];
