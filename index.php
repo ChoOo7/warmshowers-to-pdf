@@ -34,7 +34,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
   }
 
   $command = "php ".__DIR__.'/cli.php '.escapeshellarg($email).' '.escapeshellarg($password).' '.escapeshellarg($gpxDest).' "" '.escapeshellarg($fromKm).' '.escapeshellarg($toKm).' '.escapeshellarg($reverse).' '.escapeshellarg($serverName).' '.escapeshellarg($searchInSquareOfXMeters).' '.($includeImage ? "true" : "false");
-  $command ='nohup '.$command.' & ';
+  $command = 'nohup '.$command.' > /dev/null & ';
   //echo $command;
   exec($command);
   $started = true;
