@@ -212,7 +212,7 @@ if($serverName) {
   $mailBody .= "\n".'Celui-ci est disponible temporairement en téléchargement à l\'adresse suviante : ';
   $mailBody .= "\n"."Epub : ".$epubHttpLink;
   $mailBody .= "\n"."Json : ".$jsonHttpLink;
-  $mailBody .= "\n"."Excel : ".$excelOutputFilename;
+  $mailBody .= "\n"."Excel : ".$excelHttpLink;
   $mailBody .= "\n";
   $mailBody .= "\n"."EPUB can be converted to PDf using http://www.online-convert.com/";
   $mailBody .= "\n";
