@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="EditGPX">
+  <trk>
+    <name>2016-11-20T13:14:01Z</name>
+    <trkseg>
+      <trkpt lat="48.97037194950836" lon="5.399270233954464">
+        <ele>309</ele>
+      </trkpt>
+      <trkpt lat="47.876821672984896" lon="5.443215546448254">
+        <ele>362</ele>
+      </trkpt>
+      <trkpt lat="46.27585786308553" lon="4.84995382778092">
+        <ele>170</ele>
+      </trkpt>
+      <trkpt lat="45.26433064581063" lon="5.179543671484974">
+        <ele>537</ele>
+      </trkpt>
+      <trkpt lat="44.29739259511452" lon="5.289406952719719">
+        <ele>455</ele>
+      </trkpt>
+      <trkpt lat="43.712634459670625" lon="5.794778046399383">
+        <ele>278</ele>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>

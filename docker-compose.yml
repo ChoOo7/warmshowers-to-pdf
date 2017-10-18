@@ -1,6 +1,6 @@
 warm:
     image: warm-php5-apache-local
-    restart: always
+    restart: "no"
     volumes:
         - ./:/var/www/warm
     ports: 
